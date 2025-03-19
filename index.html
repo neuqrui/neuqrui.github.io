@@ -3,54 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的简历</title>
+    <title>动态网页示例</title>
     <style>
+        /* CSS 样式 */
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            text-align: center;
+            margin-top: 50px;
         }
-        h1 {
+        .box {
+            width: 200px;
+            height: 100px;
+            background-color: lightblue;
+            margin: 20px auto;
+            line-height: 100px;
+            font-size: 20px;
+            transition: background-color 0.5s;
+        }
+        .box:hover {
+            background-color: lightcoral;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #data {
+            margin-top: 20px;
+            font-size: 18px;
             color: #333;
-        }
-        .section {
-            margin-bottom: 20px;
-        }
-        .section h2 {
-            color: #555;
-        }
-        .section p {
-            color: #777;
         }
     </style>
 </head>
 <body>
-    <h1>我的简历</h1>
+    <h1>动态网页示例</h1>
 
-    <div class="section">
-        <h2>个人信息</h2>
-        <p>姓名: 张三</p>
-        <p>电话: 123-456-7890</p>
-        <p>邮箱: zhangsan@example.com</p>
-    </div>
+    <!-- 动态内容区域 -->
+    <div class="box" id="dynamicBox">点击按钮改变我</div>
 
-    <div class="section">
-        <h2>教育背景</h2>
-        <p>学校: 某某大学</p>
-        <p>专业: 计算机科学</p>
-        <p>时间: 2015-2019</p>
-    </div>
+    <!-- 按钮 -->
+    <button onclick="changeText()">改变文字</button>
+    <button onclick="loadData()">加载数据</button>
 
-    <div class="section">
-        <h2>工作经历</h2>
-        <p>公司: 某某公司</p>
-        <p>职位: 软件工程师</p>
-        <p>时间: 2019-至今</p>
-    </div>
+    <!-- 数据展示区域 -->
+    <div id="data"></div>
 
-    <div class="section">
-        <h2>技能</h2>
-        <p>编程语言: Java, Python, JavaScript</p>
-        <p>框架: Spring, React</p>
-    </div>
+    <script>
+        // JavaScript 代码
+        function changeText() {
+            // 动态改变盒子内容
+            const box = document.getElementById("dynamicBox");
+            box.innerText = "文字已改变！";
+            box.style.backgroundColor = "lightgreen";
+        }
+
+        function loadData() {
+            // 使用 AJAX 加载数据
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "https://jsonplaceholder.typicode.com/posts/1", true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    document.getElementById("data").innerText = `加载的数据：${data.title}`;
+                } else {
+                    document.getElementById("data").innerText = "加载数据失败！";
+                }
+            };
+            xhr.onerror = function () {
+                document.getElementById("data").innerText = "请求出错！";
+            };
+            xhr.send();
+        }
+    </script>
 </body>
 </html>
