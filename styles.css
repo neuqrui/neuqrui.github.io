@@ -1,126 +1,785 @@
+/* Add this at the VERY TOP of your styles.css file */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* 全局样式优化 */
 body {
-    background: #f8f9fa; /* 更柔和的背景色 */
-    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; /* 更现代的字体 */
+    background: #f8f9fa;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
     color: #333;
     margin: 0;
     padding: 0;
 }
 
-/* 布局表格优化 */
-table#tlayout {
-    width: 100%;
-    max-width: 1200px; /* 限制最大宽度 */
-    margin: 0 auto;
-    border: none;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1); /* 添加阴影效果 */
+/* === Styles for "科研论文" Section === */
+#publications-section ul { /* This rule might no longer be needed if ul was removed for tabs */
+    list-style-type: none;
+    padding-left: 0;
+}
+#publications-section ul li { /* This rule might no longer be needed */
+    margin-bottom: 2em;
+}
+/* Titles for papers/projects within each tab (from previous step) */
+.research-tabs-container .tab-content > h3 {
+    font-size: 1.4em;
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 1.2em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid #d0e0ff;
 }
 
-/* 菜单栏优化 */
-#layout-menu {
-    background: #f0f8ff;
-    padding: 1.5em 1em;
-    width: 200px; /* 固定宽度 */
-    vertical-align: top;
-    position: sticky;
-    top: 0;
-    height: 100vh;
+.paper-subsection-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e7e7e7;
+    border-radius: 8px;
+    padding: 1.5em;
+    margin-top: 1.5em; /* This might need to be 0 for the first card in .paper-main-content */
+    margin-bottom: 1.5em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
-#layout-menu a {
-    display: block;
-    padding: 8px 12px;
-    margin: 5px 0;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+.paper-subsection-card h4 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    font-size: 1.25em;
+    color: #333;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.4em;
 }
 
-#layout-menu a:hover {
-    background: #d0e8ff;
-    transform: translateX(5px);
+.paper-subsection-card h5 {
+    margin-top: 1.2em;
+    margin-bottom: 0.6em;
+    font-size: 1.1em;
+    color: #111;
+    font-weight: 600;
 }
-
-/* 内容区域优化 */
-#layout-content {
-    padding: 2em;
-    background: white;
-}
-
-/* 标题优化 */
-h1, h2, h3 {
-    color: #2c3e50;
-    margin-top: 1.5em;
+.paper-subsection-card p {
     margin-bottom: 0.8em;
-    padding-bottom: 0.3em;
-    border-bottom: 1px solid #eaecef;
+    line-height: 1.7;
 }
 
-h1 {
-    font-size: 2.2em;
+/* Image Gallery Styles for Papers */
+.image-gallery {
+    margin-top: 1em;
+}
+
+.image-gallery .image-row {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping if space is truly insufficient */
+    gap: 1em;        /* Space between images in a row */
+    margin-bottom: 1em;
+    align-items: flex-start;
+}
+
+.image-gallery .clickable-img.gallery-img {
+    flex-grow: 1;  /* Allow growing if space permits */
+    flex-shrink: 1;/* Allow shrinking */
+    flex-basis: 0;   /* Start with a basis of 0, let width/max-width and grow/shrink define size */
+
+    width: calc(50% - 0.5em);     /* Attempt to be 50% of parent minus half gap */
+    max-width: calc(50% - 0.5em); /* Crucial: Force image to not exceed this calculated width */
+
+    /* ADJUST OR TEMPORARILY REMOVE min-width FOR TESTING: */
+    min-width: 100px; /* Significantly reduced min-width. If still wrapping, parent is very narrow or images are huge. Try 0 for absolute testing. */
+
+    height: auto;     /* Let height adjust to maintain aspect ratio after width is set */
+    object-fit: contain; /* Scale image down to fit, preserving aspect ratio */
+    border: 1px solid #ddd;
+    display: block; /* Helps with width/height application */
+}
+/* NO duplicate .image-gallery .image-row rule here */
+
+.clickable-img.full-width-img.content-img {
+    width: 100%;
+    max-width: 850px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #ddd;
+}
+.clickable-img.full-width-img {
+    max-width: 700px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* === Styles for Tabbed "获奖情况" Section (and general tabs) === */
+.tabs-container {
+    margin-top: 1em;
+}
+.tab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5em;
+}
+.tab-button {
+    padding: 0.75em 1.25em;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1em;
+    font-weight: 500;
+    color: #495057;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    text-align: center;
+}
+.tab-button:hover {
+    color: #0056b3;
+    background-color: #f8f9fa;
+}
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
     font-weight: 600;
 }
 
-/* 图片样式优化 */
-.clickable-img {
+.tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease-in-out;
+    padding: 0.5em 0;
+}
+.tab-content.active {
+    display: block;
+}
+
+.tab-content > h3 { /* General title style for content within a tab */
+    font-size: 1.5em;
+    color: #343a40;
+    margin-top: 0;
+    margin-bottom: 1em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.awards-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+.awards-list li {
+    padding: 0.5em 0;
+    border-bottom: 1px dotted #eee;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+}
+.awards-list li:last-child {
+    border-bottom: none;
+}
+
+.award-level-icon {
+    display: inline-block;
+    margin-right: 0.75em;
+    font-size: 1.2em;
+    min-width: 25px;
+    text-align: center;
+    line-height: 1.4;
+}
+.national-icon { color: #D4AF37; }
+.provincial-icon { color: #C0C0C0; }
+.other-icon { color: #CD7F32; }
+
+.certificate-section.awards-certificates h4 {
+    font-size: 1.15em;
+    color: #495057;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 0.4em;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Styles for Paper Detail Layout (within a tab) === */
+.paper-detail-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin-top: 1em;
+}
+.paper-mini-nav {
+    flex: 0 0 200px;
+    margin-bottom: 1.5em;
+}
+.paper-mini-nav h4 {
+    font-size: 1.1em;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.4em;
+    border-bottom: 1px solid #ccc;
+}
+.paper-mini-nav ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    position: sticky;
+    top: 75px;
+}
+.paper-mini-nav li {
+    margin-bottom: 0.5em;
+}
+.paper-mini-nav a.mini-nav-link {
+    display: block;
+    padding: 0.5em 0.8em;
+    text-decoration: none;
+    color: #0056b3;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    transition: background-color 0.2s ease, border-left-color 0.2s ease, color 0.2s ease;
+    font-size: 0.95em;
+}
+.paper-mini-nav a.mini-nav-link:hover {
+    background-color: #e9ecef;
+    color: #003d80;
+}
+.paper-mini-nav a.mini-nav-link.active {
+    background-color: #d4eaff;
+    border-left-color: #007bff;
+    font-weight: 600;
+    color: #004085;
+}
+.paper-main-content {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.paper-main-content .paper-subsection-card {
+    margin-top: 0;
+    margin-bottom: 2em;
+    scroll-margin-top: 75px;
+}
+.paper-main-content .paper-subsection-card:first-child { /* Already handled by above with margin-top:0 */
+    /* margin-top: 0; */
+}
+
+
+/* --- 全局和主要布局 --- */
+#page-header { /* ... (styles as before) ... */
+    background-color: #2c3e50;
+    color: #ffffff;
+    padding: 30px 20px;
+}
+.header-content-wrapper { /* ... (styles as before) ... */
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+#profile-picture-header { /* ... (styles as before) ... */
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    margin-right: 30px;
+    object-fit: cover;
+}
+.header-info { /* ... (styles as before) ... */
+    display: flex;
+    flex-direction: column;
+}
+.header-info h1#user-name-header { /* ... (styles as before) ... */
+    font-size: 2.2em;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.header-info .affiliation { /* ... (styles as before) ... */
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+.contact-header { /* ... (styles as before) ... */
+    display: flex;
+    flex-direction: column;
+}
+.contact-item { /* ... (styles as before) ... */
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+.contact-item:last-child { margin-bottom: 0; }
+.contact-item .contact-icon { /* ... (styles as before) ... */
+    margin-right: 10px;
+    font-size: 1.1em;
+    width: 20px;
+    text-align: center;
+}
+.contact-item a, .contact-item span { /* ... (styles as before) ... */
+    color: #ffffff;
+    text-decoration: none;
+}
+.contact-item a:hover { text-decoration: underline; }
+
+#top-navigation-container { /* ... (styles as before) ... */
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+#top-navigation-container.is-pinned { box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+
+#progress-bar-container { /* ... (styles as before) ... */
+    width: 100%;
+    height: 4px;
+    background-color: transparent;
+}
+#progress-bar { /* ... (styles as before) ... */
+    height: 100%;
+    width: 0%;
+    background-color: #007bff;
+    transition: width 0.1s linear;
+}
+
+#top-navbar { /* ... (styles as before) ... */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 56px;
+    padding: 0 2em;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+#top-navbar .nav-logo a { /* ... (styles as before) ... */
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #2c3e50;
+    text-decoration: none;
+}
+#top-navbar .nav-links a { /* ... (styles as before) ... */
+    margin-left: 25px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+#top-navbar .nav-links a:hover,
+#top-navbar .nav-links a.active { /* ... (styles as before) ... */
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+table#tlayout { /* ... (styles as before) ... */
+    width: 100%;
+    max-width: 1200px;
+    margin: 2em auto;
+    border: none;
+    border-collapse: collapse;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* 菜单栏优化 (Left Sidebar) */
+#layout-menu {
+    background: #f7f9fc; /* Slightly off-white, cleaner background */
+    padding: 1.2em;      /* Adjusted padding */
+    width: 190px;        /* Slightly narrower */
+    vertical-align: top;
+    position: sticky;
+    top: 75px;           /* Assuming main sticky nav is ~60px high + 15px buffer */
+    height: calc(100vh - 75px - 1.2em); /* Full height minus top offset and bottom padding */
+    max-height: calc(100vh - 75px - 1.2em); /* Ensure it doesn't overflow viewport */
+    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06); /* Softer shadow */
+    margin-right: 2em; /* Increased space between menu and content */
+}
+
+#layout-menu h4 { /* Style for the menu title */
+    font-size: 0.9em; /* Smaller title */
+    color: #555;      /* Subtler color */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 0;
+    margin-bottom: 1em;
+    padding-bottom: 0.6em;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#layout-menu .menu-item a {
+    display: flex;       /* For icon and text alignment */
+    align-items: center; /* Vertical centering */
+    padding: 10px 12px;
+    margin-bottom: 6px;  /* Space between items */
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    color: #383d41;      /* Default text color */
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+#layout-menu .menu-item a .menu-icon {
+    margin-right: 12px;  /* Space between icon and text */
+    font-size: 1.1em;    /* Icon size */
+    min-width: 20px;     /* Align text if icons have different widths */
+    text-align: center;
+    color: #007bff;      /* Default icon color */
+    transition: color 0.2s ease;
+}
+
+#layout-menu .menu-item a.current {
+    background-color: #e2f0ff; /* Lighter blue for current item */
+    color: #0056b3;            /* Darker blue text for current item */
+    font-weight: 600;
+}
+
+#layout-menu .menu-item a.current .menu-icon {
+    color: #0056b3; /* Icon color matches text for current item */
+}
+
+#layout-menu .menu-item a:hover {
+    background-color: #dcefff;
+    color: #004085; /* Darker text on hover */
+    transform: translateX(3px);
+}
+
+#layout-menu .menu-item a:hover .menu-icon {
+    color: #004085; /* Icon color matches text on hover */
+}
+
+#layout-content { /* ... (styles as before) ... */
+    padding: 0;
+    background: transparent;
+}
+
+#layout-content > section { /* ... (styles as before) ... */
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 2em;
+    margin-bottom: 2em;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, border-color 0.3s ease-out;
+}
+#layout-content > section:hover { /* ... (styles as before) ... */
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+section[id], div#contact-header-block[id] { /* ... (styles as before) ... */
+  scroll-margin-top: 75px;
+}
+
+#layout-content > section > h2 { /* ... (styles as before) ... */
+    color: #2c3e50;
+    margin-top: 0;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    border-bottom: 2px solid #007bff;
+    font-size: 1.6em;
+}
+h1 { /* ... (styles as before) ... */
+    font-size: 2.2em;
+    font-weight: 600;
+}
+#user-name-header { /* ... (styles as before) ... */
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-top: 0;
+}
+
+.clickable-img { /* ... (styles as before) ... */
     transition: all 0.3s ease;
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
-
-.clickable-img:hover {
+.clickable-img:hover { /* ... (styles as before) ... */
     transform: scale(1.02);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-    #layout-menu {
-        width: 100%;
-        height: auto;
-        position: relative;
-    }
-
-    #layout-content {
-        padding: 1em;
-    }
+.certificate-section { /* ... (styles as before) ... */
+    margin: 1.5em 0;
 }
-
-/* 新增证书展示区样式 */
-.certificate-section {
-    margin: 2em 0;
-}
-
-.certificate-grid {
+.certificate-grid { /* ... (styles as before) ... */
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
     margin-top: 1em;
 }
-
-.certificate-item {
+.certificate-item { /* ... (styles as before) ... */
     border: 1px solid #eaecef;
     border-radius: 8px;
     overflow: hidden;
     transition: all 0.3s ease;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
-.certificate-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+.certificate-item:hover { /* ... (styles as before) ... */
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
 }
-
-.certificate-item img {
+.certificate-item img { /* ... (styles as before) ... */
     width: 100%;
     height: auto;
     display: block;
 }
-
-.certificate-caption {
-    padding: 12px;
+.certificate-caption { /* ... (styles as before) ... */
+    padding: 10px;
     background: #f8f9fa;
     text-align: center;
+    font-size: 0.85em;
+}
+
+#footer { /* ... (styles as before) ... */
+    padding: 2em 0;
+    text-align: center;
     font-size: 0.9em;
+    color: #6c757d;
+    margin-top: 2em;
+}
+
+#contact-me-card-section p { /* ... (styles as before) ... */
+    margin-bottom: 1em;
+    line-height: 1.7;
+    font-size: 1.05em;
+}
+#contact-me-card-section strong { /* ... (styles as before) ... */
+    font-weight: 600;
+    color: #0056b3;
+}
+.contact-details-in-card { /* ... (styles as before) ... */
+    margin-top: 1.8em;
+    padding-top: 1.2em;
+    border-top: 1px solid #e9ecef;
+}
+.contact-item-in-card { /* ... (styles as before) ... */
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+    font-size: 1em;
+}
+.contact-item-in-card .contact-icon { /* ... (styles as before) ... */
+    margin-right: 12px;
+    font-size: 1.3em;
+    min-width: 30px;
+    text-align: center;
+    color: #007bff;
+}
+.contact-item-in-card a { /* ... (styles as before) ... */
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.contact-item-in-card a:hover { text-decoration: underline; }
+#contact-me-card-section h2 { /* ... (styles as before) ... */ }
+
+
+/* --- RESPONSIVE STYLES --- */
+@media (max-width: 992px) { /* ... (styles as before, including paper-detail-layout changes) ... */
+    #layout-menu {
+        width: 100%;
+        height: auto;
+        position: static;
+        margin-right: 0;
+        margin-bottom: 2em;
+        top: auto;
+    }
+    .paper-detail-layout { /* Copied from previous response for this section */
+        flex-direction: column;
+    }
+    .paper-mini-nav {
+        flex: 0 0 auto;
+        width: 100%;
+        position: static;
+    }
+    .paper-mini-nav ul {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.5em;
+    }
+    .paper-mini-nav li { margin-right: 0.5em; }
+    .paper-mini-nav a.mini-nav-link {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+    .paper-mini-nav a.mini-nav-link.active {
+        border-left: none;
+        border-bottom-color: #007bff;
+    }
+}
+
+@media (max-width: 768px) { /* ... (styles as before, including paper images and tabs) ... */
+    .header-content-wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+    #profile-picture-header { margin-right: 0; margin-bottom: 20px; width: 100px; height: 100px; }
+    .header-info { align-items: center; }
+    .header-info h1#user-name-header { font-size: 1.8em; }
+    .header-info .affiliation { font-size: 1em; }
+    .contact-header { justify-content: center; flex-direction: column; align-items: center; }
+    .contact-item { margin-right: 0; }
+
+    #top-navbar { padding: 0 1em; flex-direction: column; height: auto; min-height: 56px; align-items: flex-start; }
+    #top-navbar .nav-logo { margin-bottom: 8px; }
+    #top-navbar .nav-links { display: flex; flex-wrap: wrap; margin-left: 0; justify-content: flex-start; }
+    #top-navbar .nav-links a { margin-left: 0; margin-right: 15px; font-size: 0.9em; margin-bottom: 5px; }
+
+    #layout-content > section { padding: 1.5em; margin-bottom: 1.5em; }
+    #layout-content > section > h2 { font-size: 1.4em; }
+    section[id], div#contact-header-block[id] { scroll-margin-top: 60px; }
+
+    .image-gallery .clickable-img.gallery-img { /* From previous step */
+        flex-basis: 100%;
+        max-width: 100%; /* Ensure it doesn't overflow its new 100% basis */
+        /* min-width: 0; /* Allow full shrinkage if needed */
+        /* max-height: 250px; /* Reduced max-height for stacked mobile view */
+    }
+    .paper-subsection-card { padding: 1em; }
+    .tab-button { flex-grow: 1; font-size: 0.9em; }
+}
+
+/* === "About me" Section - Small Cards === */
+.about-me-cards-container {
+    display: grid;
+    /* 自动填充列，每列最小300px，最大1fr（平均分配剩余空间）*/
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5em; /* 卡片之间的间隙 */
+    margin-top: 2em; /* 与 "About me" 标题的间距 */
+}
+
+.about-me-card {
+    background-color: #ffffff; /* 卡片背景色，如果想和主卡片背景区分，可用 #fdfdfd */
+    border: 1px solid #e9ecef; /* 卡片边框 */
+    border-radius: 10px;       /* 卡片圆角 */
+    padding: 1.5em 1.8em;    /* 卡片内部填充 */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06); /* 卡片阴影 */
+    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+    display: flex; /* 使得卡片内容可以更好地垂直分布（如果需要） */
+    flex-direction: column; /* 内容垂直排列 */
+}
+
+.about-me-card:hover {
+    transform: translateY(-5px); /* 悬停时轻微上移 */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1); /* 悬停时阴影加深 */
+}
+
+.about-me-card h4 {
+    font-size: 1.2em;     /* 小卡片标题字号 */
+    color: #0056b3;      /* 标题颜色 (可替换为您喜欢的主题色) */
+    margin-top: 0;
+    margin-bottom: 1em;
+    display: flex;       /* 让图标和文字在同一行并垂直居中 */
+    align-items: center;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #dfe6f0; /* 标题下的分隔线 */
+}
+
+.about-me-card .card-icon {
+    margin-right: 0.7em;  /* 图标与标题文字的间距 */
+    font-size: 1.4em;     /* 图标大小 */
+    color: #007bff;       /* 图标颜色 (可根据您的主题色调整) */
+}
+/* 自我介绍卡片 - 特殊字体样式 (方案 B: CSS内置样式) */
+.self-introduction-card p {
+    font-style: italic;       /* 使用斜体 */
+    font-size: 1.02em;        /* 略微调整字号 */
+    color: #4a5568;           /* 一个柔和而专业的深灰色 */
+    letter-spacing: 0.3px;    /* 细微的字间距调整，增加精致感 */
+    line-height: 1.8;
+    /* text-shadow: 1px 1px 2px rgba(0,0,0,0.05); */ /* 可选：非常细微的文字阴影增加层次感 */
+}
+.about-me-cards-container .full-width-card {
+    grid-column: 1 / -1; /* 关键属性：让此网格项从第一条列网格线跨越到最后一条列网格线 */
+}
+
+.about-me-card p,
+.about-me-card ul {
+    font-size: 0.98em;     /* 卡片内正文字号 */
+    line-height: 1.7;      /* 行高 */
+    color: #495057;       /* 正文颜色 */
+    margin-bottom: 0.5em;  /* 段落下边距 */
+    flex-grow: 1; /* 使得内容区域可以填充卡片剩余空间 */
+}
+.about-me-card p:last-child,
+.about-me-card ul:last-child {
+    margin-bottom: 0; /* 移除最后一个元素的下边距 */
+}
+
+
+.about-me-card ul {
+    padding-left: 20px; /* 列表的左内边距 (项目符号区域) */
+    margin-top: 0.3em;  /* 列表与上方元素的间距 */
+}
+
+.about-me-card ul li {
+    margin-bottom: 0.5em; /* 列表项之间的间距 */
+}
+
+.about-me-card ul li strong { /* 用于 "科研经历" 中的日期/机构名称 */
+    font-weight: 600;
+    color: #343a40;
+}
+
+/* 响应式调整：在较小屏幕上，卡片堆叠成单列 */
+@media (max-width: 768px) {
+    .about-me-cards-container {
+        grid-template-columns: 1fr; /* 单列显示 */
+        gap: 1.2em;
+    }
+    .about-me-card {
+        padding: 1.2em 1.5em;
+    }
+    .about-me-card h4 {
+        font-size: 1.15em;
+    }
+    .about-me-card p,
+    .about-me-card ul {
+        font-size: 0.95em;
+    }
+}
+
+.network-steps {
+    padding-left: 20px; /* Standard indentation for ordered lists */
+    margin-top: 0.5em;  /* Space above the list */
+    margin-bottom: 1em; /* Space below the list */
+}
+
+.network-steps li {
+    margin-bottom: 0.5em; /* Space between list items */
+    line-height: 1.6;     /* Adjust line height for readability */
+}
+
+/* 可选：为 Deepseek RL 实验中的奖励函数列表添加特定样式 */
+ol.custom-reward-list {
+    list-style-type: decimal; /* 使用数字列表 */
+    padding-left: 25px;     /* 列表缩进 */
+    margin-top: 0.8em;
+    margin-bottom: 0.5em;
+}
+
+ol.custom-reward-list li {
+    margin-bottom: 0.6em; /* 列表项之间的间距 */
+    line-height: 1.65;    /* 行高 */
+    color: #333;          /* 列表项文字颜色 */
+}
+
+ol.custom-reward-list li strong {
+    color: #0056b3; /* 列表项中加粗文字的颜色 */
 }
