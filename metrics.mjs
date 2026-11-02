@@ -1,5 +1,6 @@
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 const CACHE_PREFIX = 'qirui-research-metric-v1:';
+const isCitationUrl = url => /^https:\/\/(?:www\.semanticscholar\.org\/|openalex\.org\/W\d+$)/.test(url || '');
 
 export function normalizeTitle(title) {
   return title.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -12,6 +13,8 @@ export async function fetchMetric(config, fetcher = globalThis.fetch) {
     let endpoint;
     if (config.kind === 'github') {
       endpoint = `https://api.github.com/repos/${config.repo}`;
+    } else if (config.provider === 'openalex') {
+      endpoint = `https://api.openalex.org/works/https://doi.org/10.48550/arxiv.${encodeURIComponent(config.arxiv)}?select=id,title,cited_by_count,doi`;
     } else if (config.arxiv) {
       endpoint = `https://api.semanticscholar.org/graph/v1/paper/ARXIV:${encodeURIComponent(config.arxiv)}?fields=title,citationCount,url`;
     } else {
@@ -28,14 +31,18 @@ export async function fetchMetric(config, fetcher = globalThis.fetch) {
     }
     if (!response.ok) throw new Error(`Metrics provider returned ${response.status}`);
     const payload = await response.json();
+    if (config.provider === 'openalex' && payload.doi?.toLowerCase() !== `https://doi.org/10.48550/arxiv.${config.arxiv}`.toLowerCase()) {
+      throw new Error('Citation record does not match the requested paper');
+    }
     const paper = config.kind === 'citations' && !config.arxiv
       ? payload.data?.find(item => normalizeTitle(item.title || '') === normalizeTitle(config.title))
       : payload;
     if (config.kind === 'citations' && !paper) return { status: 'not-indexed' };
-    const count = config.kind === 'github' ? paper.stargazers_count : paper.citationCount;
+    const count = config.kind === 'github' ? paper.stargazers_count
+      : config.provider === 'openalex' ? paper.cited_by_count : paper.citationCount;
     if (!Number.isSafeInteger(count) || count < 0) throw new Error('Invalid metric count');
-    const url = config.kind === 'citations' && /^https:\/\/www\.semanticscholar\.org\//.test(paper.url || '')
-      ? paper.url : null;
+    const citationUrl = config.provider === 'openalex' ? paper.id : paper.url;
+    const url = config.kind === 'citations' && isCitationUrl(citationUrl) ? citationUrl : null;
     return { status: 'ok', count, url };
   } finally {
     clearTimeout(timeout);
@@ -55,10 +62,12 @@ export function readCache(storage, key, now = Date.now()) {
 
 function renderMetric(element, result, { cached = false } = {}) {
   const value = element.querySelector('[data-metric-value]');
-  const provider = element.dataset.metric === 'github' ? 'GitHub' : 'Semantic Scholar';
+  const provider = element.dataset.metric === 'github' ? 'GitHub'
+    : element.dataset.provider === 'openalex' ? 'OpenAlex' : 'Semantic Scholar';
   const name = element.dataset.metric === 'github' ? 'stars' : 'citations';
   value.textContent = result.status === 'ok'
     ? new Intl.NumberFormat('en-US').format(result.count)
+    : element.dataset.metric === 'citations' ? '—'
     : result.status === 'not-indexed' ? 'Not indexed' : 'Unavailable';
   element.dataset.state = result.status;
   const detail = result.status === 'ok'
@@ -66,7 +75,7 @@ function renderMetric(element, result, { cached = false } = {}) {
     : result.status === 'not-indexed' ? 'This paper is not yet indexed' : 'Temporarily unavailable; click to view the source';
   element.title = `${provider}: ${detail}`;
   element.setAttribute('aria-label', element.title);
-  if (result.url && /^https:\/\/www\.semanticscholar\.org\//.test(result.url)) element.href = result.url;
+  if (result.url && isCitationUrl(result.url)) element.href = result.url;
 }
 
 export async function updateMetric(element, { fetcher = globalThis.fetch, storage, now = Date.now() } = {}) {
@@ -75,15 +84,18 @@ export async function updateMetric(element, { fetcher = globalThis.fetch, storag
     repo: element.dataset.repo,
     arxiv: element.dataset.arxiv,
     title: element.dataset.paperTitle,
+    provider: element.dataset.provider,
   };
-  const key = `${config.kind}:${config.repo || config.arxiv || config.title}`;
+  const key = `${config.kind}${config.provider ? `:${config.provider}` : ''}:${config.repo || config.arxiv || config.title}`;
   const cache = readCache(storage, key, now);
   const snapshotCount = Number(element.dataset.snapshotCount);
-  const snapshot = config.kind === 'github' && element.dataset.snapshotCount !== undefined && Number.isSafeInteger(snapshotCount) && snapshotCount >= 0
+  const snapshot = element.dataset.snapshotCount !== undefined && Number.isSafeInteger(snapshotCount) && snapshotCount >= 0
     ? { status: 'ok', count: snapshotCount } : null;
   if (!cache && snapshot) {
     renderMetric(element, snapshot, { cached: true });
-    element.title = `GitHub: ${snapshotCount} stars · verified snapshot, ${element.dataset.snapshotDate || 'at publication'}; refresh pending`;
+    const source = config.kind === 'github' ? 'GitHub' : config.provider === 'openalex' ? 'OpenAlex' : 'Semantic Scholar';
+    const label = config.kind === 'github' ? 'stars' : 'citations';
+    element.title = `${source}: ${snapshotCount} ${label} · verified snapshot, ${element.dataset.snapshotDate || 'at publication'}; refresh pending`;
     element.setAttribute('aria-label', element.title);
   }
   if (cache) renderMetric(element, cache, { cached: true });
