@@ -1,0 +1,30 @@
+name: Update Google Scholar citations
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scholar-citations
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - name: Read public Google Scholar profile
+        run: python3 scripts/update_scholar_citations.py --data assets/scholar-citations.json
+      - name: Save changed citation counts
+        run: |
+          git add assets/scholar-citations.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Update verified Google Scholar citation counts'
+          git push

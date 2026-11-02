@@ -1,6 +1,9 @@
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 const CACHE_PREFIX = 'qirui-research-metric-v1:';
-const isCitationUrl = url => /^https:\/\/(?:www\.semanticscholar\.org\/|openalex\.org\/W\d+$)/.test(url || '');
+const SCHOLAR_DATA = 'https://raw.githubusercontent.com/neuqrui/neuqrui.github.io/main/assets/scholar-citations.json';
+const isCitationUrl = url => /^https:\/\/(?:www\.semanticscholar\.org\/|openalex\.org\/W\d+$|scholar\.google\.com\/(?:citations|scholar)\?)/.test(url || '');
+const citationProvider = config => config.provider === 'google-scholar' ? 'Google Scholar'
+  : config.provider === 'openalex' ? 'OpenAlex' : 'Semantic Scholar';
 
 export function normalizeTitle(title) {
   return title.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -13,6 +16,8 @@ export async function fetchMetric(config, fetcher = globalThis.fetch) {
     let endpoint;
     if (config.kind === 'github') {
       endpoint = `https://api.github.com/repos/${config.repo}`;
+    } else if (config.provider === 'google-scholar') {
+      endpoint = SCHOLAR_DATA;
     } else if (config.provider === 'openalex') {
       endpoint = `https://api.openalex.org/works/https://doi.org/10.48550/arxiv.${encodeURIComponent(config.arxiv)}?select=id,title,cited_by_count,doi`;
     } else if (config.arxiv) {
@@ -31,6 +36,16 @@ export async function fetchMetric(config, fetcher = globalThis.fetch) {
     }
     if (!response.ok) throw new Error(`Metrics provider returned ${response.status}`);
     const payload = await response.json();
+    if (config.provider === 'google-scholar') {
+      const paper = payload.papers?.[config.arxiv];
+      if (payload.provider !== 'google-scholar' || payload.profileId !== 'St1xlXQAAAAJ'
+        || !paper || normalizeTitle(paper.title || '') !== normalizeTitle(config.title || '')
+        || !Number.isSafeInteger(paper.count) || paper.count < 0 || !paper.checkedAt
+        || !isCitationUrl(paper.url) || !paper.url.startsWith('https://scholar.google.com/')) {
+        throw new Error('No verified Google Scholar count for this paper');
+      }
+      return { status: 'ok', count: paper.count, url: paper.url, checkedAt: paper.checkedAt };
+    }
     if (config.provider === 'openalex' && payload.doi?.toLowerCase() !== `https://doi.org/10.48550/arxiv.${config.arxiv}`.toLowerCase()) {
       throw new Error('Citation record does not match the requested paper');
     }
@@ -63,7 +78,7 @@ export function readCache(storage, key, now = Date.now()) {
 function renderMetric(element, result, { cached = false } = {}) {
   const value = element.querySelector('[data-metric-value]');
   const provider = element.dataset.metric === 'github' ? 'GitHub'
-    : element.dataset.provider === 'openalex' ? 'OpenAlex' : 'Semantic Scholar';
+    : citationProvider(element.dataset);
   const name = element.dataset.metric === 'github' ? 'stars' : 'citations';
   value.textContent = result.status === 'ok'
     ? new Intl.NumberFormat('en-US').format(result.count)
@@ -71,7 +86,7 @@ function renderMetric(element, result, { cached = false } = {}) {
     : result.status === 'not-indexed' ? 'Not indexed' : 'Unavailable';
   element.dataset.state = result.status;
   const detail = result.status === 'ok'
-    ? `${result.count} ${name}${cached ? ' · cached' : ''}`
+    ? `${result.count} ${name}${result.checkedAt ? ` · updated ${result.checkedAt.slice(0, 10)}` : ''}${cached ? ' · cached' : ''}`
     : result.status === 'not-indexed' ? 'This paper is not yet indexed' : 'Temporarily unavailable; click to view the source';
   element.title = `${provider}: ${detail}`;
   element.setAttribute('aria-label', element.title);
@@ -93,7 +108,7 @@ export async function updateMetric(element, { fetcher = globalThis.fetch, storag
     ? { status: 'ok', count: snapshotCount } : null;
   if (!cache && snapshot) {
     renderMetric(element, snapshot, { cached: true });
-    const source = config.kind === 'github' ? 'GitHub' : config.provider === 'openalex' ? 'OpenAlex' : 'Semantic Scholar';
+    const source = config.kind === 'github' ? 'GitHub' : citationProvider(config);
     const label = config.kind === 'github' ? 'stars' : 'citations';
     element.title = `${source}: ${snapshotCount} ${label} · verified snapshot, ${element.dataset.snapshotDate || 'at publication'}; refresh pending`;
     element.setAttribute('aria-label', element.title);
